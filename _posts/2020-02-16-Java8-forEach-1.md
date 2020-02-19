@@ -57,14 +57,6 @@ list.forEach(System.out::println);
 >
 ```java
 list.parallelStream().forEach(System.out::println);
-/* output
-3
-5
-1
-2
-6
-4
-*/
 ```
 
 关于更多Java8流(Stream)操作和方法引用(method reference)的介绍下次再说。

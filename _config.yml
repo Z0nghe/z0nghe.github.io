@@ -31,7 +31,7 @@ header_pages:
 
 style: dark
 
-footer: '<a href="https://github.com/Z0nghe">我的GitHub</a>'
+footer: '<a href="https://github.com/Z0nghe" target="_blank">我的GitHub</a>'
 
 # Build settings
 markdown: kramdown

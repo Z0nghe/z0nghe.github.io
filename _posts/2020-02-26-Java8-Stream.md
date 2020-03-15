@@ -3,18 +3,15 @@ layout: post
 title:  "Java8新特性（三）流操作(Stream)"
 date:   2020-02-26 20:30:11 +0800
 categories: java java8 stream
+abstract: "在Java8中新添加了Stream，Stream是对集合对象（Collection）的增强处理，它可以很简介方便的处理数据。Stream和原来的InputStream、FileReader等完全不是一个概念，虽然他们都叫流。"
 ---
 
-> # Java8新特性（三）流操作(Stream)
+### 一、前言
+在Java8中新添加了Stream，Stream是对集合对象（Collection）的增强处理，它可以很简介方便的处理数据。Stream和原来的InputStream、FileReader等完全不是一个概念，虽然他们都叫流。
 
-&nbsp;
-### 前言
-在Java8中新添加了Stream，它可以很简介方便的处理数据。Stream和原来的InputStream、FileReader等完全不是一个概念，虽然他们都叫流。
-Stream是对集合对象（Collection）的增强处理
+### 二、使用方法
 
-### 使用方法
-&nbsp;
-##### 创建流
+#### 1.创建流
 首先随便创建一个List
 
 ```java
@@ -35,7 +32,7 @@ Stream<String> parallelStream = list.parallelStream();
 parallelStream.forEach(System.out::println);
 ```
 
-##### map操作
+#### 2.map操作
 一个流只能进行一个操作
 map是将流进行加工后返回一个新的流
 forEach由于没有返回值所以流自动close了
@@ -43,20 +40,20 @@ forEach由于没有返回值所以流自动close了
 list.stream().map(word -> word + '*').forEach(System.out::println);
 ```
 
-##### filter操作
+#### 3.filter操作
 filter可以设置条件过滤流中的元素
 ```java
 list.stream().filter(word -> word.length() > 2).forEach(System.out::println);
 ```
 
-##### limit操作
+#### 4.limit操作
 limit可以获取指定数量的元素
 limit的参数是long
 ```java
 list.stream().limit(4L).forEach(System.out::println);
 ```
 
-##### sort操作
+#### 5.sort操作
 sorted()方法和集合的sort()方法类似
 也可以传入一个Comparator接口
 在Java8中Comparator接口也加上了函数式接口注解
@@ -64,7 +61,7 @@ sorted()方法和集合的sort()方法类似
 list.stream().sorted((Comparator.comparingInt(String::length))).forEach(System.out::println);
 ```
 
-##### collect操作
+#### 6.collect操作
 collect可以使用Collectors类将流转换成List或者Set等
 ```java
 List<String> newList = list.stream().filter(word -> !word.isEmpty()).collect(Collectors.toList());
@@ -73,7 +70,7 @@ String string = list.stream().filter(word -> !word.isEmpty()).collect(Collectors
 System.out.println(string);
 ```
 
-##### match操作
+#### 7.match操作
 match分三种
 返回一个bool值
 ```java
@@ -85,7 +82,7 @@ System.out.println(anyMatch);
 System.out.println(noneMatch);
 ```
 
-##### 统计操作
+#### 8.统计操作
 ```java
 List<Integer> numbers = Arrays.asList(3, 2, 2, 3, 7, 3, 5);
 IntSummaryStatistics stats = numbers.stream().mapToInt((x) -> x).summaryStatistics();
@@ -95,8 +92,7 @@ System.out.println("所有数之和 : " + stats.getSum());
 System.out.println("平均数 : " + stats.getAverage());
 ```
 
-&nbsp;
-最后附上测试代码和结果
+### 三、最后附上测试代码和结果
 
 ```java
 import java.util.Arrays;

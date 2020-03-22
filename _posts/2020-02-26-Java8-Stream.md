@@ -6,12 +6,12 @@ categories: java java8 stream
 abstract: "在 Java8 中新添加了 Stream，Stream 是对集合对象（Collection）的增强处理，它可以很简介方便的处理数据。Stream 和原来的 InputStream、FileReader 等完全不是一个概念，虽然他们都叫流。"
 ---
 
-### 一、前言
+## 一、前言
 在 Java8 中新添加了 Stream，Stream 是对集合对象（Collection）的增强处理，它可以很简介方便的处理数据。Stream 和原来的 InputStream、FileReader 等完全不是一个概念，虽然他们都叫流。
 
-### 二、使用方法
+## 二、使用方法
 
-#### 1. 创建流
+### 1. 创建流
 首先随便创建一个 List
 
 ```java
@@ -32,7 +32,7 @@ Stream<String> parallelStream = list.parallelStream();
 parallelStream.forEach(System.out::println);
 ```
 
-#### 2.map 操作
+### 2.map 操作
 一个流只能进行一个操作
 map 是将流进行加工后返回一个新的流
 forEach 由于没有返回值所以流自动 close 了
@@ -40,20 +40,20 @@ forEach 由于没有返回值所以流自动 close 了
 list.stream().map(word -> word + '*').forEach(System.out::println);
 ```
 
-#### 3.filter 操作
+### 3.filter 操作
 filter 可以设置条件过滤流中的元素
 ```java
 list.stream().filter(word -> word.length() > 2).forEach(System.out::println);
 ```
 
-#### 4.limit 操作
+### 4.limit 操作
 limit 可以获取指定数量的元素
 limit 的参数是 long
 ```java
 list.stream().limit(4L).forEach(System.out::println);
 ```
 
-#### 5.sort 操作
+### 5.sort 操作
 sorted()方法和集合的 sort() 方法类似
 也可以传入一个 Comparator 接口
 在 Java8 中 Comparator 接口也加上了函数式接口注解
@@ -61,7 +61,7 @@ sorted()方法和集合的 sort() 方法类似
 list.stream().sorted((Comparator.comparingInt(String::length))).forEach(System.out::println);
 ```
 
-#### 6.collect 操作
+### 6.collect 操作
 collect 可以使用 Collectors 类将流转换成 List 或者 Set 等
 ```java
 List<String> newList = list.stream().filter(word -> !word.isEmpty()).collect(Collectors.toList());
@@ -70,7 +70,7 @@ String string = list.stream().filter(word -> !word.isEmpty()).collect(Collectors
 System.out.println(string);
 ```
 
-#### 7.match 操作
+### 7.match 操作
 match 分三种
 返回一个 bool 值
 ```java
@@ -82,7 +82,7 @@ System.out.println(anyMatch);
 System.out.println(noneMatch);
 ```
 
-#### 8. 统计操作
+### 8. 统计操作
 ```java
 List<Integer> numbers = Arrays.asList(3, 2, 2, 3, 7, 3, 5);
 IntSummaryStatistics stats = numbers.stream().mapToInt((x) -> x).summaryStatistics();
@@ -92,7 +92,7 @@ System.out.println("所有数之和 :" + stats.getSum());
 System.out.println("平均数 :" + stats.getAverage());
 ```
 
-### 三、最后附上测试代码和结果
+## 三、最后附上测试代码和结果
 
 ```java
 import java.util.Arrays;

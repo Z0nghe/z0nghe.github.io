@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Spring Bean生命周期"
-date:   2021-01-17 22:53:11 +0800
+date:   2021-01-21 22:53:11 +0800
 categories: java spring bean
 abstract: "阅读BeanFactory接口源码并对bean生命周期进行简要分析"
 ---
@@ -49,6 +49,8 @@ abstract: "阅读BeanFactory接口源码并对bean生命周期进行简要分析
 关闭BeanFactory时，Bean也会随之销毁。
 
 ## 四、代码演示
+
+### 1.Bean类
 
 创建一个`Student`类，实现一个简单Bean需要的四个接口`BeanFactoryAware`，`BeanNameAware`，`InitializingBean`，`DisposableBean`：
 
@@ -132,7 +134,7 @@ public class Student implements BeanFactoryAware, BeanNameAware, InitializingBea
 
 ```
 
-自定义`BeanPostProcessor`实现类：
+### 2.自定义`BeanPostProcessor`实现类
 
 ```java
 package com.example.learn.student;
@@ -144,10 +146,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class StudentBeanPostProcessor implements BeanPostProcessor {
-    public StudentBeanPostProcessor() {
+public class MyBeanPostProcessor implements BeanPostProcessor {
+    public MyBeanPostProcessor() {
         super();
-        log.info("StudentBeanPostProcessor构造器");
+        log.info("初始化MyBeanPostProcessor");
     }
 
     @Override
@@ -165,7 +167,7 @@ public class StudentBeanPostProcessor implements BeanPostProcessor {
 
 ```
 
-自定义`BeanFactoryPostProcessor`实现类:
+### 3.自定义`BeanFactoryPostProcessor`实现类
 
 ```java
 package com.example.learn.student;
@@ -180,10 +182,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class StudentBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
-    public StudentBeanFactoryPostProcessor() {
+public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+    public MyBeanFactoryPostProcessor() {
         super();
-        log.info("初始化BeanFactoryPostProcessor");
+        log.info("初始化MyBeanFactoryPostProcessor");
     }
 
     @Override
@@ -196,7 +198,7 @@ public class StudentBeanFactoryPostProcessor implements BeanFactoryPostProcessor
 
 ```
 
-自定义`InstantiationAwareBeanPostProcessor`实现类：
+### 4.自定义`InstantiationAwareBeanPostProcessor`实现类
 
 ```java
 package com.example.learn.student;
@@ -209,7 +211,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class StudentInstantiationAwareBeanProcessor implements InstantiationAwareBeanPostProcessor {
+public class MyInstantiationAwareBeanProcessor implements InstantiationAwareBeanPostProcessor {
+    public MyInstantiationAwareBeanProcessor() {
+        log.info("初始化MyInstantiationAwareBeanProcessor");
+    }
+
     @Override
     public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
         log.info("实例化Bean之前调用, beanName:{}", beanName);
@@ -231,7 +237,7 @@ public class StudentInstantiationAwareBeanProcessor implements InstantiationAwar
 
 ```
 
-启动类：
+### 5.启动类
 
 ```java
 package com.example.learn;
@@ -262,11 +268,12 @@ public class LearnApplication implements CommandLineRunner {
 
 ```
 
-执行代码后部分log如下：
+### 6.运行log
 
-```
-初始化BeanFactoryPostProcessor
-StudentBeanPostProcessor构造器
+```text
+初始化MyBeanFactoryPostProcessor
+初始化MyBeanPostProcessor
+初始化MyInstantiationAwareBeanProcessor
 实例化Bean之前调用, beanName:learnApplication
 实例化Bean之后调用， beanName:learnApplication
 设置Bean属性时调用, beanName:learnApplication
@@ -281,8 +288,10 @@ BeanFactoryAware接口实现，注入BeanFactory:org.springframework.beans.facto
 postProcessBeforeInitialization对属性进行更改, beanName:student
 InitializingBean接口实现，初始化Bean方法
 postProcessAfterInitialization对属性进行更改, beanName:student
+postProcessBeforeInitialization对属性进行更改, beanName:learnApplication
+postProcessAfterInitialization对属性进行更改, beanName:learnApplication
 ...
-无关log不做展示
+其他Bean初始化log，不做展示
 ...
 xiaoming toString(): Student{name='小明', age=18, beanName='student'}
 DisposableBean接口实现，销毁bean方法
@@ -294,9 +303,45 @@ DisposableBean接口实现，销毁bean方法
 
 Bean的生命周期分为：实例化->赋值->初始化->销毁 四个阶段。
 
-在调用BeanFactory的getBean()方法后：
+由于我是用的是Spring Boot框架来测试的Bean生命周期，所以不需要执行BeanFactory的getBean()方法也可以初始化一个Bean。
 
-1. 
-2. 
+### 1.初始化PostProcessor
 
-其中涉及的接口包括各种aware和各种processor，在后续过程中会对Aware接口和BeanPostProcessor接口进行分析。
+在几个PostProcessor接口的源码中都有一段关于注册到ApplicationContext的相似的注释。
+
+BeanFactoryPostProcessor：
+
+> An ApplicationContext auto-detects BeanFactoryPostProcessor beans in its bean definitions and applies them before any other beans get created. A BeanFactoryPostProcessor may also be registered programmatically with a ConfigurableApplicationContext.
+
+BeanPostProcessor：
+
+> An ApplicationContext can autodetect BeanPostProcessor beans in its bean definitions and apply those post-processors to any beans subsequently created. A plain BeanFactory allows for programmatic registration of post-processors, applying them to all beans created through the bean factory.
+
+`InstantiationAwareBeanPostProcessor`接口继承了`BeanPostProcessor`接口的子类，所以本质上也是一个BeanPostProcessor。
+
+这三个接口实现类的Bean会先于其他Bean注册到ApplicationContext，为后续Bean的生命周期处理做准备。
+
+### 2.实例化Bean
+
+实例化的过程分为四步：
+
+1. 调用`InstantiationAwareBeanPostProcessor`接口实现类的`postProcessBeforeInstantiation`方法
+2. 调用Spring Bean类的构造方法
+3. 调用`InstantiationAwareBeanPostProcessor`接口实现类的`postProcessAfterInstantiation`方法
+4. 调用`InstantiationAwareBeanPostProcessor`接口实现类的`postProcessProperties`方法
+
+### 3.Bean注入属性
+
+1. 调用`InstantiationAwareBeanPostProcessor`接口实现类的`postProcessProperties`方法
+2. 调用`BeanFactoryPostProcessor`接口实现类的`postProcessBeanFactory`方法配置Bean属性
+3. 调用Bean的Aware接口方法配置Bean的BeanName和BeanFactory
+
+### 4.初始化
+
+执行Bean的构造函数并且在调用构造函数前后分别调用`postProcessBeforeInitialization`和`postProcessAfterInitialization`方法
+
+### 5.销毁
+
+在BeanFactory shutdown时，调用Bean的`DisposableBean`接口实现方法销毁Bean
+
+至此，Spring Bean生命周期结束。
